@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Room Occupancy Panel</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+
+        h2, h3 {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        /* Карточка */
+        #panel {
+            padding: 20px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.1);
+            width: 320px;
+            margin-top: 20px;
+        }
+
+        #count {
+            font-size: 36px;
+            font-weight: bold;
+            margin-top: 10px;
+            background: #eef0f4;
+            padding: 12px;
+            text-align: center;
+            border-radius: 10px;
+        }
+
+        .error {
+            color: #c0392b;
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 22px;
+        }
+
+        /* Формы */
+        #form {
+            padding: 18px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            width: 320px;
+        }
+
+        #form input[type=file] {
+            margin-bottom: 12px;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #4a90e2;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        button:hover {
+            background: #3b7ac3;
+        }
+
+        /* Таблица */
+        table {
+            border-collapse: collapse;
+            margin-top: 25px;
+            width: 700px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        th {
+            background: #f0f2f6;
+            padding: 10px;
+            font-weight: 600;
+            border-bottom: 1px solid #ddd;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover td {
+            background: #f7f9fc;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Upload video</h2>
+
+<form id="form">
+    <input type="file" name="file">
+    <br>
+    <button type="submit">Analyze</button>
+</form>
+
+<div id="panel">
+    <div>People detected:</div>
+    <div id="count">–</div>
+    <div id="error" class="error"></div>
+</div>
+
+<h3>History</h3>
+<table id="history"></table>
+
+<script>
+async function loadHistory() {
+    let r = await fetch("http://localhost:8000/history");
+    let data = await r.json();
+
+    let table = "<tr><th>ID</th><th>File</th><th>People</th><th>Time</th></tr>";
+    data.forEach(x => {
+        table += `<tr>
+            <td>${x.id}</td>
+            <td>${x.filename}</td>
+            <td>${x.people_count}</td>
+            <td>${x.timestamp}</td>
+        </tr>`;
+    });
+    document.getElementById("history").innerHTML = table;
+}
+
+document.getElementById("form").onsubmit = async (e) => {
+    e.preventDefault();
+    document.getElementById("error").textContent = "";
+    document.getElementById("count").textContent = "…";
+
+    let fd = new FormData(e.target);
+
+    let r = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        body: fd
+    });
+
+    if (!r.ok) {
+        let err = await r.json();
+        document.getElementById("error").textContent = err.detail || "Error";
+        document.getElementById("count").textContent = "–";
+        return;
+    }
+
+    let res = await r.json();
+    document.getElementById("count").textContent = res.people_count;
+    loadHistory();
+};
+
+loadHistory();
+</script>
+
+</body>
+</html>
