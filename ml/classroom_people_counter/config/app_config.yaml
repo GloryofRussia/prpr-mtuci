@@ -13,10 +13,33 @@ model:
 
 detection:
   desks:
-    - name: desk_1
-      rect: [50, 200, 250, 350]
-    - name: desk_2
-      rect: [300, 200, 500, 350]
+    - name: desk_1_front_left
+      rect: [90, 380, 260, 500]
+
+    - name: desk_2_front_center
+      rect: [360, 380, 540, 500]
+
+    - name: desk_3_front_right
+      rect: [650, 380, 830, 500]
+
+    - name: desk_4_mid_left
+      rect: [120, 260, 300, 360]
+
+    - name: desk_5_mid_center
+      rect: [380, 260, 560, 360]
+
+    - name: desk_6_mid_right
+      rect: [650, 260, 840, 360]
+
+    - name: desk_7_back_left
+      rect: [150, 140, 330, 240]
+
+    - name: desk_8_back_center
+      rect: [420, 140, 600, 240]
+
+    - name: desk_9_back_right
+      rect: [700, 140, 880, 240]
+
 
 logging:
   file: logs/app.log
